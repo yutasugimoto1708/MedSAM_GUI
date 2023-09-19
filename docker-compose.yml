@@ -1,0 +1,21 @@
+version: '2.4'
+services:
+  medsam: ###ここを変える　コンテナを複数立ち上げたときのコンテナグループの名前
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: medsam ###ここを変える コンテナの名前
+    tty: true # 入出力をつなげる
+    volumes: 
+      - ".:/workdir"
+      - "/datasets/graduation_thesis_datasets/:/datasets"
+      - "/mnt/e/:/result"
+      # - "/mnt/public/sugimoto/weight/Unet:/weight"
+    shm_size: '8gb' #シェアードメモリのサイズ
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0'] #['0','2'] などと書けば、0番と2番がマウント
+              capabilities: [utility, compute, video]

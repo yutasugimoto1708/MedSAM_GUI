@@ -1,0 +1,9 @@
+matplotlib
+h5
+pynrrd
+pydicom
+tqdm
+jupyterlab
+pandas
+scikit-image
+ipympl

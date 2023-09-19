@@ -1,0 +1,59 @@
+FROM nvcr.io/nvidia/cuda:11.7.0-cudnn8-devel-ubuntu20.04
+
+ENV PYTHON_VERSION 3.9.7
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get upgrade -y
+
+RUN apt-get install -y tzdata
+
+# timezone setting
+ENV TZ=Asia/Tokyo 
+
+RUN apt-get install -y \
+    git \
+    make \
+    build-essential \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    wget \
+    curl \
+    llvm \
+    libncurses5-dev \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev \
+    libffi-dev \
+    liblzma-dev
+
+# http://bugs.python.org/issue19846
+ENV LANG C.UTF-8
+
+# https://github.com/docker-library/python/issues/147
+ENV PYTHONIOENCODING UTF-8
+
+ENV HOME /root
+
+ENV PYTHON_ROOT $HOME/local/python-$PYTHON_VERSION
+
+ENV PATH $PYTHON_ROOT/bin:$PATH
+
+ENV PYENV_ROOT $HOME/.pyenv
+
+#python bulid and instration
+RUN git clone https://github.com/pyenv/pyenv.git $PYENV_ROOT
+RUN $PYENV_ROOT/plugins/python-build/install.sh
+RUN /usr/local/bin/python-build -v $PYTHON_VERSION $PYTHON_ROOT
+RUN rm -rf $PYENV_ROOT
+
+RUN pip install --upgrade pip
+
+RUN pip install torch==2.0.0+cu117 torchvision==0.15.1+cu117 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cu117
+
+COPY requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt
